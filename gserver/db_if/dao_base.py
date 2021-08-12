@@ -2,8 +2,11 @@
 import abc
 from gserver.db_if.db_models import *
 
-
 class RoomDaoBase(abc.ABC):
+    def __init__(self, db_client):
+        self.dbc = db_client
+        print(f'Ops Redis client: {self.dbc}')
+
     @abc.abstractmethod
     def insert_room(self, room: Room, **kwargs) -> None:
         pass
