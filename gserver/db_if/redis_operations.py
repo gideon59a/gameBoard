@@ -1,46 +1,39 @@
 ''' This module implements the access to redis db.
 It uimports the abstract methods from dao_base, which in trun imports the db models. '''
 
-from gserver.db_if.redis_client import *
+from gserver.board4inRow import init_new_board
 from gserver.db_if.dao_base import *
 from gserver.db_if.db_models import *
-from constants import *
-
 
 class RoomDBops(RoomDaoBase):
-    def __init__(self):
-        self.redis = RedisClient()
-        self.r = self.redis.client
-        print(f'Ops Redis client: {self.r}')
+    def __init__(self, db_client):
+        super().__init__(db_client)
 
     def insert_room_dict(self, room: dict, **kwargs) -> int:  # todo - delete
         ''' unused function'''
         print(f'Set id: {room["id"]}')
-        self.r.hset("room:"+str(room["id"]), mapping=room)
+        self.dbc.hset("room:"+str(room["id"]), mapping=room)
         return 0
 
     def insert_room(self, room: Room, **kwargs) -> int:
         room_dict = room.__dict__
         print(f'Set id: {room_dict["id"]}')
-        self.r.hset("room:" + str(room_dict["id"]), mapping=room_dict)
+        self.dbc.hset("room:" + str(room_dict["id"]), mapping=room_dict)
         return 0
 
     def get_room(self, id: int) -> dict:
         print(f"get id: {id}")
-        return self.r.hgetall("room:"+str(id))
+        return self.dbc.hgetall("room:"+str(id))
 
     def get_root_status(self, id: int) -> int:  # Needed to save getting the whole game
-        return self.r.hget("room:" + str(id), "room_status")
+        return self.dbc.hget("room:" + str(id), "room_status")
 
     def del_room(self, id: int):
         print(f'deleting room {id}')
-        return self.r.delete("room:"+str(id))
-
-    #def get_all_room_names(self) -> list:
-    #    return self.r.keys("room:*")
+        return self.dbc.delete("room:"+str(id))
 
     def get_all_room_ids(self) -> list:
-        names_list = self.r.keys("room:*")
+        names_list = self.dbc.keys("room:*")
         #print(names_list)
         id_list = []
         for name in names_list:
@@ -48,15 +41,18 @@ class RoomDBops(RoomDaoBase):
             id_list.append(int(id))
         return id_list
 
+    def set_att_in_room(self, id: int, att, value):
+        self.dbc.hset("room:" + str(id), att, value)
+
     def insert_board(self, board: Board ) -> None:
         board_dict = board.__dict__
         print(f'Wr board:  {board_dict["id"]}')
-        self.r.hset("room:" + str(board_dict["id"]), mapping=board)
+        self.dbc.hset("room:" + str(board_dict["id"]), mapping=board)
 
     def get_board(self, id: int) -> dict:
         name = "board:"+str(id)
         print(f'Rd board:  {name}')
-        return self.r.hgetall(name)
+        return self.dbc.hgetall(name)
         
     # XX delete the below
     def try2(self,iroom):
@@ -67,8 +63,8 @@ class RoomDBops(RoomDaoBase):
                 "moon_count": "1"
             }
             # Set the fields of the hash.
-            self.r.hset("mytry", mapping=iroom) ##earth_properties)
-            print(self.r.hgetall("mytry"))
+            self.dbc.hset("mytry", mapping=iroom) ##earth_properties)
+            print(self.dbc.hgetall("mytry"))
 
 if __name__ == '__main__':
 
@@ -97,7 +93,11 @@ if __name__ == '__main__':
              "board": ""}
 
 
-    my_room = RoomDBops()
+    from gserver.main import get_db_client
+    dbc = get_db_client()
+    print(f'DB client: {dbc}')
+
+    my_room = RoomDBops(dbc)
     #res = my_room.try2(room)  # tested ok
 
     # Let's start with a simple dict
@@ -132,3 +132,6 @@ if __name__ == '__main__':
     #print(my_room.r.hgetall("room:*"))
 
     print(f'id list: {my_room.get_all_room_ids()}')
+
+    my_room.set_att_in_room(11, "room_status", 1)
+    print(f'Room status: {my_room.get_root_status(room11.__dict__["id"])}')
