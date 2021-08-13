@@ -1,9 +1,9 @@
 ''' This module implements the access to redis db.
 It uimports the abstract methods from dao_base, which in trun imports the db models. '''
 
-from gserver.board4inRow import init_new_board
 from gserver.db_if.dao_base import *
 from gserver.db_if.db_models import *
+from gserver.constants import *
 
 class RoomDBops(RoomDaoBase):
     def __init__(self, db_client):
@@ -44,7 +44,7 @@ class RoomDBops(RoomDaoBase):
     def set_att_in_room(self, id: int, att, value):
         self.dbc.hset("room:" + str(id), att, value)
 
-    def insert_board(self, board: Board ) -> None:
+    def insert_board(self, board: BoardG4inRow) -> None:
         board_dict = board.__dict__
         print(f'Wr board:  {board_dict["id"]}')
         self.dbc.hset("room:" + str(board_dict["id"]), mapping=board)
@@ -72,21 +72,21 @@ if __name__ == '__main__':
     board1 = init_new_board(id=7)
     room11 = Room(
         id=11,
-        game_type="G4inRow",
+        game_type=G4_IN_ROW,
         room_status=2,
         player_1_id=1,
         player_2_id=2,
         board=board1.__str__())
 
     room1 = {"id": 100,
-            "game_type": "4inRow",
+            "game_type": G4_IN_ROW,
             "game_status": 0,
             "player_1_id": 1,
             "player_2_id": 22,
             "board": ""}
 
     room2 = {"id": 101,
-             "game_type": "4inRow",
+             "game_type": G4_IN_ROW,
              "game_status": 0,
              "player_1_id": 3,
              "player_2_id": 4,

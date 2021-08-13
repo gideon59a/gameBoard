@@ -20,7 +20,7 @@ class RoomDaoBase(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def insert_board(self, board: Board ) -> None:
+    def insert_board(self, board: BoardG4inRow) -> None:
         pass
 
     @abc.abstractmethod
