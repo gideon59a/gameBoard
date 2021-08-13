@@ -7,11 +7,11 @@ def join_game():
 
     pass
 
-def get_db_client():
-    if DB_TYPE == "redis":
-        # get a redis client
-        redis = RedisClient()
-        return redis.client
+#def get_db_client():
+#    if DB_TYPE == "redis":
+#        # get a redis client
+#        redis = RedisClient()
+#        return redis.client
 
 
 def main():

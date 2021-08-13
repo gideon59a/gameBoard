@@ -1,14 +1,15 @@
 # get the rooms list from the DB, add a new one, store and read
-from gserver.pre_game import find_available_room
-from gserver.main import get_db_client
+from gserver.db_if.db_main import get_db_client, get_db_ops
+from constants import *
 dbc = get_db_client()
+my_room = get_db_ops(dbc)
 print(f'DB client: {dbc}')
 
-from gserver.board4inRow import init_new_board
-from gserver.db_if.redis_operations import RoomDBops
+
 from gserver.db_if.db_models import Room
-board1 = init_new_board(id=7)
-my_room = RoomDBops(dbc)
+from gserver.g4_in_row import game_g4inrow
+my_game = game_g4inrow.G4inRow()
+board1 = my_game.init_new_board(id=7)
 
 room3 = Room(
     id=3,
@@ -21,7 +22,7 @@ room3 = Room(
 room_ids = my_room.get_all_room_ids()
 print(room_ids)
 
-room_found, room_id, room_status = find_available_room("G4inRow", my_room ,778)
+room_found, room_id, room_status = my_game.find_available_room(G4_IN_ROW, my_room, 778)
 print(f'Room_found, room_id, room_status:  {room_found} {room_id} {room_status}')
 
 
