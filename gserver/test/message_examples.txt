@@ -1,0 +1,8 @@
+Note: In powershell
+ - use curl.exe rather than curl
+ - add the escape characters, otherwise the " sign will be ommitted.
+
+curl.exe http://127.0.0.1:5000/gs/v1/game/join/g4inrow -X "POST" -H 'Content-Type: application/json' -d '{\"player_id\": 1001}'
+
+
+

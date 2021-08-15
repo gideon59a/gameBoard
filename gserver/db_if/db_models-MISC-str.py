@@ -1,3 +1,4 @@
+### THIS MODULE IS NOT USED, REMAINS FOR __str__ LEARNING PURPOSE ONLY
 from dataclasses import dataclass
 import json
 
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     board0 = Board(id=77,
                   player="A",       # A or B
                   winner="",        # equals to A, B, Tie, or null ** Note: Common to other games too **
-                  matrix=[["-" for x in range(num_cols)] for x in range(num_rows)],  # martix[row][column]
+                  matrix=[["-" for _ in range(num_cols)] for _ in range(num_rows)],  # martix[row][column]
                   next_row=[0 for i in range(num_cols)],  # init the next row available for each col,
                   last_move_col=0,  # init. This is the col of the last move in range 1..number of cols
                   last_move_row=0,  # init. This is the row of the last move in range 1..number of rows
