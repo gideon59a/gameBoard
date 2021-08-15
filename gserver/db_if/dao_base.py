@@ -2,6 +2,7 @@
 import abc
 from gserver.db_if.db_models import *
 
+
 class RoomDaoBase(abc.ABC):
     def __init__(self, db_client):
         self.dbc = db_client
@@ -12,7 +13,16 @@ class RoomDaoBase(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_room(self, id: int) -> dict:
+    def get_room(self, room_id: int) -> dict:
+        pass
+
+    @abc.abstractmethod
+    def get_room_status(self, room_id: int) -> int:  # Needed for avoiding getting the whole game
+        print(f' DEBUG *** HERE ***')
+        return 0
+
+    @abc.abstractmethod
+    def del_room(self, room_id: int):
         pass
 
     @abc.abstractmethod
@@ -24,5 +34,5 @@ class RoomDaoBase(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_board(self, id: int ) -> dict:
+    def get_board(self, id: int) -> dict:
         pass

@@ -11,18 +11,19 @@ class GameBase(abc.ABC):
         pass
 
     def find_available_room(self, game_type, room_ops: RoomDBops, player_id):
-        '''When a new player requests to join/open a game'''
+        '''When a new player requests to join/open a game.
+        When room_status = 1 the new player can be added to the room'''
         # Start with existing rooms
         room_found = False
         room_id = 0
         room_status = 0
         room_id_list = room_ops.get_all_room_ids()
         print(f' room_id_list {room_id_list}')
-        for id in room_id_list:
-            room_status = int(room_ops.get_root_status(id))
+        for rid in room_id_list:
+            room_status = int(room_ops.get_room_status(rid))
             # print(f'room_status {room_status} {type(room_status)}')
             if room_status == 1:  # There is already a 1st player waiting
-                room_id = id
+                room_id = rid
                 room_status = 2
                 room_ops.set_att_in_room(room_id, "room_status", room_status)
                 room_ops.set_att_in_room(room_id, "player_2_id", player_id)
