@@ -12,12 +12,17 @@ class RoomDBops(RoomDaoBase):
     def insert_room_dict(self, room: dict, **kwargs) -> int:  # todo - delete
         ''' unused function'''
         print(f'Set id: {room["id"]}')
+        print(f' ***insert*** room type and value {type(room)} {room}')
         self.dbc.hset("room:"+str(room["id"]), mapping=room)
         return 0
 
     def insert_room(self, room: Room, **kwargs) -> int:
         room_dict = room.__dict__
+        print(f' INSERT ROOM {type(room_dict)} {room_dict}')
         print(f'Set id: {room_dict["id"]}')
+        #dict_to_store = {"key1": 101, "key2": str({"kk2": 22})}
+        #self.dbc.hset("tryzz", mapping=dict_to_store)
+        #xx self.dbc.hmset("room:" + str(room_dict["id"]), room_dict)
         self.dbc.hset("room:" + str(room_dict["id"]), mapping=room_dict)
         return 0
 
@@ -27,11 +32,16 @@ class RoomDBops(RoomDaoBase):
 
     def get_room_status(self, room_id: int) -> int:  # Needed to save getting the whole game
         print(f' DEBUG *** HERE AT redis_operations ***')
-        aa = self.get_room(room_id)
-        print(type(aa))
-        print(f' DEBUG Print room\n {aa}')
-
+        #? aa = self.get_room(room_id)
+        #? print(type(aa))
+        #? print(f' DEBUG Print room\n {aa}')
         return self.dbc.hget("room:" + str(room_id), "room_status")
+
+    def get_room_board(self, room_dict: dict) -> dict:
+        got_board = room_dict["board"]
+        print(f' got_board:  {type(got_board)} {got_board}')
+        got_board_dict = json.loads(got_board.replace("\'", "\""))
+        return got_board_dict
 
     def del_room(self, room_id: int):
         print(f'deleting room {room_id}')
@@ -55,11 +65,6 @@ class RoomDBops(RoomDaoBase):
     def set_att_in_room(self, rid: int, att, value):
         self.dbc.hset("room:" + str(rid), att, value)
 
-    def insert_board(self, board: BoardG4inRow) -> None:
-        board_dict = board.__dict__
-        print(f'Wr board:  {board_dict["id"]}')
-        self.dbc.hset("room:" + str(board_dict["id"]), mapping=board)
-
     def delete_all_rooms(self, game_type=""):
         room_ids_list = self.get_all_room_ids()   ##self.dbc.keys("room:*")
         for room_id in room_ids_list:
@@ -67,11 +72,19 @@ class RoomDBops(RoomDaoBase):
                 print("deleting room room_id")
                 self.del_room(room_id)
 
+
     ## The below is currently not used
-    def get_board(self, id: int) -> dict:
-        name = "board:"+str(id)
-        print(f'Rd board:  {name}')
-        return self.dbc.hgetall(name)
+
+    def xinsert_board(self, board: BoardG4inRow) -> None:
+        board_dict = board.__dict__
+        print(f'Wr board:  {board_dict["id"]}')
+        self.dbc.hset("room:" + str(board_dict["id"]), mapping=board)
+
+    def xget_board(self, room_id: int) -> dict:
+        board_got = self.get_room(room_id)["board"]
+        #print(f'Rd board:  {name}')  zzzzz
+        #return self.dbc.hgetall(name)
+        return {"a": -999}
         
     # XX delete the below
     def try2(self,iroom):
@@ -100,62 +113,79 @@ if __name__ == '__main__':
         room_status=2,
         player_1_id=1,
         player_2_id=2,
-        board=board1.__str__())
+        board=str(board1.__dict__))
+        #board=str(board1.__dict__))
+        #board=board1.__str__())
 
+    print(f' room11 {type(room11.__dict__)} {room11.__dict__}')
+
+    from gserver.db_if.db_main import get_db_client
+    dbc = get_db_client()
+    print(f'DB client: {dbc}')
+
+    room_ops = RoomDBops(dbc)
+    #res = room_ops.try2(room)  # tested ok
+
+    '''
+    
     room1 = {"id": 100,
             "game_type": G4_IN_ROW,
             "game_status": 0,
             "player_1_id": 1,
             "player_2_id": 22,
-            "board": ""}
+            "board": {"matrix": "--"}}
 
     room2 = {"id": 101,
              "game_type": G4_IN_ROW,
              "game_status": 0,
              "player_1_id": 3,
              "player_2_id": 4,
-             "board": ""}
-
-
-    from gserver.db_if.db_main import get_db_client
-    dbc = get_db_client()
-    print(f'DB client: {dbc}')
-
-    my_room = RoomDBops(dbc)
-    #res = my_room.try2(room)  # tested ok
-
+             "board": {}}
+             
     # Let's start with a simple dict
-    result1 = my_room.del_room(100)  # clean
-    #result2 = my_room.del_room(101)  # clean
-    result3 = my_room.insert_room_dict(room1)  # Its id is 100
+    result1 = room_ops.del_room(100)  # clean
+    #result2 = room_ops.del_room(101)  # clean
+    print(f'**** room1 type and value {type(room1)} {room1}')
+    result3 = room_ops.insert_room_dict(room1)  # Its id is 100
     print(f'res: {result3}')
     #print(room1.__dict__["id"])
-    print(my_room.get_room(room1["id"]))
+    print(room_ops.get_room(room1["id"]))
+    '''
+
+
 
     # now with real room functions
-    #result4 = my_room.del_room(100)  # clean
-    result11 = my_room.del_room(11)  # clean
-    result12 = my_room.insert_room(room11)  # Its id is 100
-    print(my_room.get_room(room11.__dict__["id"]))
-    print(f'Room status: {my_room.get_room_status(room11.__dict__["id"])}')
+    # result4 = room_ops.del_room(100)  # clean
+    result11 = room_ops.del_room(11)  # clean
+    result12 = room_ops.insert_room(room11)  # Its id is 100
+    print(f'**** room11 type and value {type(room11)} {room11}')
+
+    got_room_dict = room_ops.get_room(11)
+    #print(f'Got room11 {type(got_room_dict)} {got_room_dict}')
+    #got_board = got_room_dict["board"]
+    #print(f' got_board:  {type(got_board)} {got_board}')
+    #got_board_dict = json.loads(got_board.replace("\'", "\""))
+    #print(f'Matrix: {got_board_dict["matrix"]}')
+
+    board_dict = room_ops.get_room_board(got_room_dict)
+    assert board_dict["player"] == 'A'
+    print(f'Matrix: {board_dict["matrix"]}')
+
+    # Updating the DB
+    #================
+    board_dict["player"] = 'B'  # An update example
+    print(f' board_dict: {type(board_dict)} {board_dict}')
+
+    got_room_dict["board"] = str(board_dict)
+    print(f'got_room_dict: {type(got_room_dict)} {got_room_dict}')
+    room_ops.insert_room_dict(got_room_dict)
+
+    #update_room = Room(got_room_dict, str(board_dict))
+    #print(f'update_room {type(update_room)} {update_room}')
 
 
-    #res2 = my_room.insert_room(room2)
-    #print(my_room.get_room(room2["id"]))
 
 
-    #list1 = my_room.get_all_room_names()
-    #print(list1)
-    #for i in list1:
-    #    a = i.split(":")
-    #    id = a[1]
-    #    print(i)
-    #    print(a)
-    #    print(id)
+    print("exit")
 
-    #print(my_room.r.hgetall("room:*"))
 
-    print(f'id list: {my_room.get_all_room_ids()}')
-
-    my_room.set_att_in_room(11, "room_status", 1)
-    print(f'Room status: {my_room.get_room_status(room11.__dict__["id"])}')

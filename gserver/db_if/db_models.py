@@ -4,7 +4,6 @@ import json
 
 @dataclass(eq=True)
 class BoardG4inRow:
-    id: int
     player: str
     winner: str
     next_row: list
@@ -22,7 +21,7 @@ class Room:
     room_status: int  # status= 0(Empty), 1(available), 2(full)
     player_1_id: int
     player_2_id: int
-    board: dict  # the board.__str__ returns dict
+    board: str  # Type must be str to be able to store
 
 
 @dataclass(eq=True)   # todo: To delete
@@ -64,26 +63,41 @@ if __name__ == "__main__":
                           last_move_row=0,  # init. This is the row of the last move in range 1..number of rows
                           last_player=" ")
 
+    # The below example is not useful - see room2
     room1 = Room(id=1,
                 game_type="G4inRow",
                 room_status=0,
                 player_1_id=1,
                 player_2_id=2,
-                board=json.loads(json.dumps(board0.__dict__)))
+                board=json.loads(json.dumps(board0.__dict__)))  # no point to use the json here
 
-    print(type(room1))
-    print(room1.__str__())
+    ## The below presents the right way to include the borad dataclass within the room dataclass
+    room2 = Room(id=1,
+                 game_type="G4inRow",
+                 room_status=2,
+                 player_1_id=21,
+                 player_2_id=22,
+                 board=board0.__dict__)
+
+    print(type(room1), room1.__str__())  # Returns the whole class, but NOT as a dict
 
     print("------BOARD0----------")
-    print(type(board0.__dict__), type(json.dumps(board0.__dict__)))
-    print(json.dumps(board0.__dict__))
+    print(type(board0.__dict__), board0.__dict__)  # The class DICT !
+    print(f'{type(json.dumps(board0.__dict__))}, {json.dumps(board0.__dict__)}')  # The class default __str__
+    print(f'matrix: {board0.__dict__["matrix"]}')  # Printing an item from the dict, the matrix.
 
     print("-----ROOM1-----------")
-    print(type(room1.__dict__), type(json.dumps(room1.__dict__)))
+    print(type(room1.__dict__), room1.__dict__)
+    print(type(json.dumps(room1.__dict__)), json.dumps(room1.__dict__))
 
     # In the code the dict will be used
     my_room_dict = room1.__dict__
-    print(json.dumps(room1.__dict__))
     my_room_dict["room_status"] = 999
-    print(my_room_dict["board"]["id"])
+    print(f' my_room_dict["board"]["id"]: {my_room_dict["board"]["id"]}')
+    print(f'Room1 board matrix: {my_room_dict["board"]["matrix"]}')
     assert my_room_dict["room_status"] == 999
+
+    print("-----ROOM2-----------")
+    print(type(room2.__dict__), room2.__dict__)
+    print(f'Room2 board matrix: {my_room_dict["board"]["matrix"]}')
+    assert room2.__dict__["room_status"] == 2

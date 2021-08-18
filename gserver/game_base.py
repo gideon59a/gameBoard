@@ -2,6 +2,7 @@ import abc
 from gserver.db_if.redis_operations import RoomDBops
 from gserver.constants import *
 from gserver.db_if.db_models import Room
+#from gserver.g4_in_row.game_g4inrow import G4inRow
 
 
 class GameBase(abc.ABC):
@@ -45,14 +46,16 @@ class GameBase(abc.ABC):
                     room_status=room_status,
                     player_1_id=player_id,
                     player_2_id=0,
-                    board=new_board.__str__())
+                    board=str(new_board.__dict__))
+                    #board=new_board.__dict__())    # ??? changed from __str__
                 room_ops.insert_room(new_room)
 
         return room_found, room_id, room_status
 
-def get_game():
-    if DB_TYPE == "redis":
-#        # get a redis client
-#        redis = RedisClient()
-#        return redis.client
-        pass
+
+#def get_game_instance(game_type):
+#    if game_type == G4_IN_ROW.lower():
+#        return G4inRow()
+#    elif game_type == "some other game":
+#        print("game not supported")
+#        return 1
