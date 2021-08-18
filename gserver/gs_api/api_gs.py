@@ -18,7 +18,6 @@ dbc = get_db_client()
 
 @app.route(BASE_URL + '/v1/game/list/<game_type>', methods=['GET'])
 def game_list(game_type):
-    #x dbc = get_db_client()
     db_ops = RoomDBops(dbc)
     room_ids = db_ops.get_all_room_ids(game_type)
     return jsonify(json.dumps(room_ids))
@@ -33,6 +32,12 @@ def game_join(game_type):
     #print(request.method)
     #print(request.__dict__)
     return jsonify(main.exe_game_join(request, game_type, dbc, logg))
+
+
+@app.route(BASE_URL + '/v1/game/play/<player_id>', methods=['POST'])
+def game_play(player_id):
+    return jsonify(main.exe_game_play(request, player_id, dbc, logg))
+
 
 if __name__ == '__main__':
     # With Gunicorn the IP address passes as an env. On development the IP is entered manually.

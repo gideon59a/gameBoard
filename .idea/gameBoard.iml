@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/gserver" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8.2 (C:\Python38\python.exe)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Game-G4InRow" />
     <orderEntry type="module" module-name="learn2.7.14" />

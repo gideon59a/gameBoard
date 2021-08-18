@@ -16,6 +16,12 @@ class RoomDaoBase(abc.ABC):
     def get_room(self, room_id: int) -> dict:
         pass
 
+
+    @abc.abstractmethod
+    def get_room_board(self, room_dict: dict) -> dict:
+        pass
+
+
     @abc.abstractmethod
     def get_room_status(self, room_id: int) -> int:  # Needed for avoiding getting the whole game
         print(f' DEBUG *** HERE ***')
@@ -29,10 +35,10 @@ class RoomDaoBase(abc.ABC):
     def get_all_room_ids(self) -> list:
         pass
 
-    @abc.abstractmethod
-    def insert_board(self, board: BoardG4inRow) -> None:
-        pass
+    #@abc.abstractmethod
+    #def insert_board(self, board: BoardG4inRow) -> None:
+    #    pass
 
-    @abc.abstractmethod
-    def get_board(self, id: int) -> dict:
-        pass
+    #@abc.abstractmethod
+    #def get_board(self, id: int) -> dict:
+    #    pass
