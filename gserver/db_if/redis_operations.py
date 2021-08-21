@@ -1,62 +1,54 @@
 ''' This module implements the access to redis db.
-It uimports the abstract methods from dao_base, which in trun imports the db models. '''
+It imports the abstract methods from dao_base, which in turn imports the db models.
+Log file is the gs.log. '''
 
-from gserver.db_if.dao_base import *
-from gserver.db_if.db_models import *
-from gserver.constants import *
+from db_if.dao_base import *
+from db_if.db_models import *
+from constants import *
 
-class RoomDBops(RoomDaoBase):
-    def __init__(self, db_client):
+class RoomRedisOps(RoomDaoBase):
+    def __init__(self, db_client, logg):
         super().__init__(db_client)
+        self.logg = logg
 
     def insert_room_dict(self, room: dict, **kwargs) -> int:  # todo - delete
         ''' unused function'''
-        print(f'Set id: {room["id"]}')
-        print(f' ***insert*** room type and value {type(room)} {room}')
+        # print(f'Set id: {room["id"]}')
+        # print(f' ***insert*** room type and value {type(room)} {room}')
         self.dbc.hset("room:"+str(room["id"]), mapping=room)
         return 0
 
     def insert_room(self, room: Room, **kwargs) -> int:
         room_dict = room.__dict__
-        print(f' INSERT ROOM {type(room_dict)} {room_dict}')
-        print(f'Set id: {room_dict["id"]}')
-        #dict_to_store = {"key1": 101, "key2": str({"kk2": 22})}
-        #self.dbc.hset("tryzz", mapping=dict_to_store)
-        #xx self.dbc.hmset("room:" + str(room_dict["id"]), room_dict)
+        self.logg.debug(f' INSERT ROOM {type(room_dict)} {room_dict}')
+        self.logg.debug(f'Set id: {room_dict["id"]}')
         self.dbc.hset("room:" + str(room_dict["id"]), mapping=room_dict)
         return 0
 
     def get_room(self, room_id: int) -> dict:
-        print(f"get id: {room_id}")
+        self.logg.debug(f"get id: {room_id}")
         return self.dbc.hgetall("room:"+str(room_id))
 
     def get_room_status(self, room_id: int) -> int:  # Needed to save getting the whole game
-        print(f' DEBUG *** HERE AT redis_operations ***')
-        #? aa = self.get_room(room_id)
-        #? print(type(aa))
-        #? print(f' DEBUG Print room\n {aa}')
+        self.logg.debug(f' DEBUG *** HERE AT redis_operations ***')
         return self.dbc.hget("room:" + str(room_id), "room_status")
 
     def get_room_board(self, room_dict: dict) -> dict:
         got_board = room_dict["board"]
-        print(f' got_board:  {type(got_board)} {got_board}')
+        self.logg.debug(f' got_board:  {type(got_board)} {got_board}')
         got_board_dict = json.loads(got_board.replace("\'", "\""))
         return got_board_dict
 
     def del_room(self, room_id: int):
-        print(f'deleting room {room_id}')
+        self.logg.debug(f'deleting room {room_id}')
         return self.dbc.delete("room:"+str(room_id))
 
     def get_all_room_ids(self, game_type="") -> list:
         ''' print all room ids (not the full names) for the selected game_type. Default=all types'''
-        print(f'getting ids for game_type {game_type}')
+        self.logg.debug(f'getting ids for game_type {game_type}')
         names_list = self.dbc.keys("room:*")
         id_list = []
         for name in names_list:
-            #print(f' the name and its content: {name} {self.dbc.hgetall(name)}')
-            #print(f'Got game_type {self.dbc.hget(name, "game_type")} for name {name}')
-            #got_game_type = self.dbc.hget(name, "game_type")
-            #print(f'type: {type(got_game_type)}, lower: {got_game_type.lower()}  ')
             if not game_type or game_type == 'all' or self.dbc.hget(name, "game_type").lower() == game_type:
                 rid = name.split(":")[1]
                 id_list.append(int(rid))
@@ -67,9 +59,10 @@ class RoomDBops(RoomDaoBase):
 
     def delete_all_rooms(self, game_type=""):
         room_ids_list = self.get_all_room_ids()   ##self.dbc.keys("room:*")
+        self.logg.debug(f'Deleting all room {room_ids_list}')
         for room_id in room_ids_list:
-            if not game_type or self.dbc.hget("room:" + str(id), "game_type") == game_type:
-                print("deleting room room_id")
+            if not game_type or game_type == 'all' or self.dbc.hget("room:" + str(id), "game_type") == game_type:
+                self.logg.debug(f'Deleting room {room_id}')
                 self.del_room(room_id)
 
 
@@ -77,7 +70,7 @@ class RoomDBops(RoomDaoBase):
 
     def xinsert_board(self, board: BoardG4inRow) -> None:
         board_dict = board.__dict__
-        print(f'Wr board:  {board_dict["id"]}')
+        self.logg.debug(f'Wr board:  {board_dict["id"]}')
         self.dbc.hset("room:" + str(board_dict["id"]), mapping=board)
 
     def xget_board(self, room_id: int) -> dict:
@@ -96,9 +89,13 @@ class RoomDBops(RoomDaoBase):
             }
             # Set the fields of the hash.
             self.dbc.hset("mytry", mapping=iroom) ##earth_properties)
-            print(self.dbc.hgetall("mytry"))
+            self.logg.debug(self.dbc.hgetall("mytry"))
 
 if __name__ == '__main__':
+    from logger import Alogger
+    my_logger = Alogger('redisop.log')
+    logger = my_logger.get_logger()
+
     from gserver.db_if.db_models import Room
     from gserver.g4_in_row import game_g4inrow
     my_game = game_g4inrow.G4inRow()
@@ -117,13 +114,13 @@ if __name__ == '__main__':
         #board=str(board1.__dict__))
         #board=board1.__str__())
 
-    print(f' room11 {type(room11.__dict__)} {room11.__dict__}')
+    logger.debug(f' room11 {type(room11.__dict__)} {room11.__dict__}')
 
     from gserver.db_if.db_main import get_db_client
     dbc = get_db_client()
-    print(f'DB client: {dbc}')
+    logger.debug(f'DB client: {dbc}')
 
-    room_ops = RoomDBops(dbc)
+    room_ops = RoomRedisOps(dbc, logger)
     #res = room_ops.try2(room)  # tested ok
 
     '''
@@ -158,7 +155,7 @@ if __name__ == '__main__':
     # result4 = room_ops.del_room(100)  # clean
     result11 = room_ops.del_room(11)  # clean
     result12 = room_ops.insert_room(room11)  # Its id is 100
-    print(f'**** room11 type and value {type(room11)} {room11}')
+    logger.debug(f'**** room11 type and value {type(room11)} {room11}')
 
     got_room_dict = room_ops.get_room(11)
     #print(f'Got room11 {type(got_room_dict)} {got_room_dict}')
@@ -169,15 +166,15 @@ if __name__ == '__main__':
 
     board_dict = room_ops.get_room_board(got_room_dict)
     assert board_dict["player"] == 'A'
-    print(f'Matrix: {board_dict["matrix"]}')
+    logger.debug(f'Matrix: {board_dict["matrix"]}')
 
     # Updating the DB
     #================
     board_dict["player"] = 'B'  # An update example
-    print(f' board_dict: {type(board_dict)} {board_dict}')
+    logger.debug(f' board_dict: {type(board_dict)} {board_dict}')
 
     got_room_dict["board"] = str(board_dict)
-    print(f'got_room_dict: {type(got_room_dict)} {got_room_dict}')
+    logger.debug(f'got_room_dict: {type(got_room_dict)} {got_room_dict}')
     room_ops.insert_room_dict(got_room_dict)
 
     #update_room = Room(got_room_dict, str(board_dict))
@@ -186,6 +183,6 @@ if __name__ == '__main__':
 
 
 
-    print("exit")
+    logger.debug("exit ok")
 
 

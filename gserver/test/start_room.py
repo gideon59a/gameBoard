@@ -6,8 +6,8 @@ my_room = get_db_ops(dbc)
 print(f'DB client: {dbc}')
 
 
-from gserver.db_if.db_models import Room
-from gserver.g4_in_row import game_g4inrow
+from db_if.db_models import Room
+from g4_in_row import game_g4inrow
 my_game = game_g4inrow.G4inRow()
 board1 = my_game.init_new_board(id=7)
 

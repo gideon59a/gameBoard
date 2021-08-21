@@ -1,16 +1,14 @@
-from gserver.game_base import GameBase
-from gserver.db_if.db_models import BoardG4inRow
-from gserver.db_if.redis_operations import RoomDBops
+from game_base import GameBase
+from db_if.db_models import BoardG4inRow
+from db_if.redis_operations import RoomRedisOps
 
 class G4inRow(GameBase):
     num_cols = 7
     num_rows = 8
 
-    def init_new_board(self, id):  #
-        #num_cols = 7
-        #num_rows = 8
+    def init_new_board(self):  #
         board = BoardG4inRow(
-                 player="A",  # A or B
+                 player="A",  # A or B (room player_1 is always "A" while room player_2 is always "B")
                  winner="",  # equals to A, B, Tie, or null ** Note: Common to other games too **
                  matrix=[["-" for x in range(self.num_cols)] for x in range(self.num_rows)],  # martix[row][column]
                  next_row=[0 for i in range(self.num_cols)],  # init the next row available for each col,
@@ -20,24 +18,25 @@ class G4inRow(GameBase):
         return board
 
     def print_board_matrix(self, matrix: list):
-        # print(f'mmmm : {type(matrix)} {matrix}')
         for i in range(self.num_rows):
             for j in range(self.num_cols):
                 print(matrix[self.num_rows-1-i][j], end="") #the end= is to avoid CRs
             print("")
         return 0
 
-    def new_move(self, room_ops: RoomDBops, got_room, player_symbol, played_column):
+    def new_move(self, room_ops: RoomRedisOps, got_room, player_symbol, played_column):
         '''Process the new move per the selected column '''
+        board = room_ops.get_room_board(got_room)
+        print(f' *** HERE **** {type(board)} {board}')
+        # Check if your turn
+        if board["player"] != player_symbol:
+            return -1, "Illegal move: Not your turn"
 
         # check if a legal move
         if played_column > (self.num_cols - 1) or (played_column < 0):
             # print ("Illegal move: No such column")
             return -1, "Illegal move: No such column"
-        board = room_ops.get_room_board(got_room)
-        print(f' *** HERE **** {type(board)} {board}')
-        #aa = board["next_row"][played_column]
-        #print(f' played_column: {aa}')
+
         if board["next_row"][played_column] == self.num_rows:
             # print ("Illegal move: Column is full")
             return -1, "Illegal move: Column is full"

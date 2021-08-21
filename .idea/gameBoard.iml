@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Game-G4InRow" />
     <orderEntry type="module" module-name="learn2.7.14" />
+    <orderEntry type="module" module-name="learn-py3" />
   </component>
 </module>

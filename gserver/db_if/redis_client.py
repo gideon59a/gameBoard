@@ -1,7 +1,14 @@
+# To run it on the laptop WSL2:
+# ip a  ## find the wsl2 ip addr
+# vi /etc/redis/redis.conf ## Bind it
+# run: # sudo service redis-server restart
+# Then to enter the redis cli run: # sudo redis-cli -h <bind address> (172.17.195.181)
+
 from redis import StrictRedis  # Use it instead of "import redis" to be able to store dict
 from constants import *
 
-host = N_LENOVO_WSL2
+#host = N_LENOVO_WSL2
+host = "192.168.77.51"
 port = N_LAP_WSL2_PORT
 
 class RedisClient:

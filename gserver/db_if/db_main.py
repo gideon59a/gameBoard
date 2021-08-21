@@ -1,6 +1,6 @@
 from constants import *
-from gserver.db_if.redis_client import RedisClient
-from gserver.db_if.redis_operations import RoomDBops
+from db_if.redis_client import RedisClient
+from db_if.redis_operations import RoomRedisOps
 
 
 def get_db_client() -> RedisClient:
@@ -12,10 +12,10 @@ def get_db_client() -> RedisClient:
         print("only redis is currently supported")
         exit(1)
 
-def get_db_ops(db_client: RedisClient) -> RoomDBops :
+def get_db_ops(db_client: RedisClient) -> RoomRedisOps :
     if DB_TYPE == "redis":
         # get a redis ops instance
-        my_room = RoomDBops(db_client)
+        my_room = RoomRedisOps(db_client)
         return my_room
     else:
         print("only redis is currently supported")
