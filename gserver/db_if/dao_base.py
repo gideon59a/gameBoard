@@ -1,6 +1,6 @@
 ''' This module is really assuming there will be more than one DB type to use. Assumed here mainly for learning purpose.'''
 import abc
-from gserver.db_if.db_models import *
+from db_if.db_models import *
 
 
 class RoomDaoBase(abc.ABC):

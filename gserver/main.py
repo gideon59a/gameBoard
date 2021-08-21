@@ -1,42 +1,35 @@
 import json
 
-from game_import import get_game_instance
-from gserver.g4_in_row.game_g4inrow import G4inRow
-
-from gserver.db_if.db_main import *
-from constants import *
+from game_base import get_game_instance
+from db_if.db_main import *
 
 
 def exe_game_join(request, game_type, dbc, logg):
     logg.debug(f'request & game_type: {request.get_data()} {game_type}')
     request_dict = json.loads(request.get_data().decode("utf-8"))
     player_id = request_dict["player_id"]
-    print(f' Player id {player_id}')
-    # return {"status": "ok"}
-    my_game = G4inRow()
-    room_ops = RoomDBops(dbc)
-    room_found, room_id, room_status = my_game.find_available_room(G4_IN_ROW, room_ops, player_id)
-    print(f'Room_found, room_id, room_status:  {room_found} {room_id} {room_status}')
+    my_game = get_game_instance(game_type)
 
-    msg = {"status": "fail"}
+    room_ops = RoomRedisOps(dbc, logg)
+    room_found, room_id, room_status = my_game.find_available_room(game_type, room_ops, player_id)
+    logg.debug(f'Room_found, room_id, room_status:  {room_found} {room_id} {room_status}')
+
+    msg, code = {"status": "fail"}, 500  # Init
     if room_found:
         if room_status == 1:  # the 1st player
-            msg = {"room_status": room_status, "room_id": room_id}
+            msg, code = {"room_status": room_status, "room_id": room_id}, 201
             pass
         elif room_status == 2:  # 2nd player so can start a game
             room_got = room_ops.get_room(room_id)
-            print(f'room_got: {type(room_got)} {room_got}')
-            msg = room_got
-            #msg = {"room_status": room_status, "room_id": room_id}
-            #msg = {"room_status": room_status, "room_id": room_id}
-            #pass
+            logg.debug(f'room_got: {type(room_got)} {room_got}')
+            msg, code = room_got, 201
         else:  # Illegal status
             pass
     else:  # no room available
         msg = {"status": "fail", "message": "No available room found"}
         pass
 
-    return msg
+    return msg, code
 
 def exe_game_play(request, player_id, dbc, logg):
     logg.debug(f'request & palyer_id: {request.get_data()} {player_id}')
@@ -44,9 +37,9 @@ def exe_game_play(request, player_id, dbc, logg):
     room_id = request_dict["room_id"]
     played_column = request_dict["played_column"]
 
-    print(f' Room id {room_id}')
+    logg.debug(f' Room id {room_id}')
     # Verify this player is active on this room
-    room_ops = RoomDBops(dbc)
+    room_ops = RoomRedisOps(dbc, logg)
     got_room = room_ops.get_room(room_id)
 
     if got_room["player_1_id"] == str(player_id):
@@ -54,27 +47,33 @@ def exe_game_play(request, player_id, dbc, logg):
     elif got_room["player_2_id"] == str(player_id):
         player_symbol = 'B'
     else:
-        return {"status": "The player does not exist in the requested room"}
+        return {"status": "The player does not exist in the requested room"}, 500
 
-    print(f'got_room {type(got_room)} {got_room}')
-    print()
+    logg.debug(f'got_room {type(got_room)} {got_room}')
     my_game = get_game_instance(got_room["game_type"].lower())
-    print(f' my_game {type(my_game)} {my_game}')
+    logg.debug(f' my_game {type(my_game)} {my_game}')
 
     ret_code, updated_board = my_game.new_move(room_ops, got_room, player_symbol, played_column)
-    print(ret_code, updated_board)
-    print("The board layout in text: \n")
+    if ret_code == -1:
+        return {"status": "failed", "message": updated_board}, 500
+
+    logg.debug(ret_code, updated_board)
+    logg.debug("The board layout in text: \n")
     my_game.print_board_matrix(updated_board["matrix"])
     # Update DB
     got_room["board"] = str(updated_board)
-    print(f'got_room: {type(got_room)} {got_room}')
+    logg.debug(f'got_room: {type(got_room)} {got_room}')
     room_ops.insert_room_dict(got_room)
 
-    return {"status": "playing"}
+    board_dict = json.loads(got_room["board"].replace("\'", "\""))
+
+    return board_dict, 201
 
 
 def main():
-    from set_logger import logger
+    from logger import Alogger
+    my_logger = Alogger('main_test.log')
+    logger = my_logger.get_logger()
     logger.error("Stam...")
     # dbc = get_db_client()
     # print(f'DB client: {dbc}')

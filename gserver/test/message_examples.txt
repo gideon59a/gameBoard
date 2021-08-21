@@ -4,7 +4,7 @@ Note: In powershell
 
 curl.exe http://127.0.0.1:5000/gs/v1/game/list/all
 curl.exe http://127.0.0.1:5000/gs/v1/game/join/g4inrow -X "POST" -H 'Content-Type: application/json' -d '{\"player_id\": 1001}'
-curl.exe http://127.0.0.1:5000/gs/v1/game/list/all
+curl.exe http://127.0.0.1:5000api/gs/v1/game/list/all
 curl.exe http://127.0.0.1:5000/gs/v1/game/join/g4inrow -X "POST" -H 'Content-Type: application/json' -d '{\"player_id\": 1002}'
 curl.exe http://127.0.0.1:5000/gs/v1/game/play/1001 -X "POST" -H 'Content-Type: application/json' -d '{\"room_id\": 1, \"played_column\": 1}'
 curl.exe http://127.0.0.1:5000/gs/v1/game/play/1002 -X "POST" -H 'Content-Type: application/json' -d '{\"room_id\": 1, \"played_column\": 1}'
