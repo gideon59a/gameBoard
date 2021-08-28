@@ -1,5 +1,7 @@
 # When running from power shell, run:
-# PS C:\pythonProjects\gameBoard\gserver> C:\Python\Python39\python.exe .\api_gs.py
+# PowerShell:
+#   cd C:\pythonProjects\gameBoard\gserver
+#   C:\Python\Python39\python.exe .\api_gs.py
 # A basic check from another PS by: PS C:\Users\agideon> curl.exe http://127.0.0.1:5000/gs/v1/game/list/all
 # tailf in power shell: PS C:\pythonProjects\gameBoard\gserver> Get-Content gs.log -Wait
 
@@ -52,15 +54,31 @@ def room(room_id):
 
 @app.route(BASE_URL + '/v1/game/join/<game_type>', methods=['POST'])
 def game_join(game_type):
+    # Look for a room to join to
     join_status, code = main.exe_game_join(request, game_type, dbc, logg)
     return jsonify(join_status), code
     #return jsonify(main.exe_game_join(request, game_type, dbc, logg))
 
 
-@app.route(BASE_URL + '/v1/game/play/<player_id>', methods=['POST'])
+@app.route(BASE_URL + '/v1/game/play/<player_id>', methods=['POST', 'GET', 'DELETE'])
 def game_play(player_id):
     board_dict, code = main.exe_game_play(request, player_id, dbc, logg)
     return jsonify(board_dict), code
+    ### todo Should add here:
+    # GET for reading the room status
+    # DELETE for leaving the room
+
+
+@app.route(BASE_URL + '/v1/game/access/<player_id>', methods=['GET', 'DELETE'])
+def game_access(player_id):
+    logg.debug(f'**** YYY GET RESPONSE: {request}')
+    rid = request.args.get("room_id")
+    logg.debug(f'**** YYY GET ARGS: {type(rid)} {rid}')
+
+    print(f'request.json {request.json}')
+    msg = {"Status": "testing get"}
+    return jsonify(json.dumps(msg)), 200
+
 
 
 if __name__ == '__main__':

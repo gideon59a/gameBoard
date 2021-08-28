@@ -102,4 +102,64 @@ my_game.print_board_matrix(board_dict["matrix"])
 assert board_dict["matrix"][0][1] == 'A' and board_dict["matrix"][1][1] == 'B'
 
 
-logger.info("Test passed")
+#Try to get A to win
+urlp1 = URL_PREFIX + '/game/play/1001'
+urlp2 = URL_PREFIX + '/game/play/1002'
+
+payload = {"room_id": 1, "played_column": 2}
+code, rjson = req.post(urlp1, payload)
+logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
+payload = {"room_id": 1, "played_column": 1}
+code, rjson = req.post(urlp2, payload)
+logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
+
+# Print board
+board_dict = rjson
+my_game.print_board_matrix(board_dict["matrix"])
+
+
+
+payload = {"room_id": 1, "played_column": 3}
+code, rjson = req.post(urlp1, payload)
+logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
+payload = {"room_id": 1, "played_column": 1}
+code, rjson = req.post(urlp2, payload)
+logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
+
+test_get_room = False
+if test_get_room:
+    # Player 1 just polls the board
+    urlg0 = URL_PREFIX + '/game/play/1001?room_id=1'
+    code, rjson = req.get(urlg0)
+    logger.info(f'Board polling: {type(rjson)} , {rjson} code: {code}')
+
+## The following GET failed due to "get() got an unexpected keyword argument 'params'"
+#url0 = URL_PREFIX + '/game/access/1001'
+#params = {"room_id": 1}
+#code, rjson = req.get(url0, params=params)
+#logger.info(f'Borad polling: {type(rjson)} , {rjson} code: {code}')
+
+
+# The winning move
+payload = {"room_id": 1, "played_column": 4}
+code, rdict = req.post(urlp1, payload)
+logger.info(f' Dict got: {type(rdict)} , {rdict} code: {code}')
+board_dict = rdict
+my_game.print_board_matrix(board_dict["matrix"])
+
+winner = board_dict["winner"]
+print(f'winner = {winner}')
+if winner == 'A':
+    logger.info("Test passed")
+else:
+    logger.info("Test failed")
+
+
+#payload = {"room_id": 1, "played_column": 1}
+#code, rjson = req.post(urlp2, payload)
+#logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
+
+
+
+
+
