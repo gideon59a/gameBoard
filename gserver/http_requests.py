@@ -11,7 +11,7 @@ class HttpRequests():
         status_code = 400
         rjson = {}
         try:
-            self.logger.debug(f'TRYING GET url = {url} ')
+            self.logger.debug(f'GET url = {url} ')
             response = requests.get(url, timeout=self.timeout)
             status_code = response.status_code
             if status_code > 210:
