@@ -26,14 +26,6 @@ if code > 210:
     logger.error("Server GET error")
     exit(1)
 
-'''
-logger.debug(f' Delete room1 if exists:')
-
-code, rjson = req.delete(url)
-logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
-'''
-
-#url = URL_PREFIX + "/room/1" # old
 logger.debug(f'Get list after all rooms have been deleted:')
 url1 = URL_PREFIX + "/game/list/all"
 code, rjson = req.get(url1)
@@ -117,8 +109,6 @@ logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
 board_dict = rjson
 my_game.print_board_matrix(board_dict["matrix"])
 
-
-
 payload = {"room_id": 1, "played_column": 3}
 code, rjson = req.post(urlp1, payload)
 logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
@@ -126,19 +116,10 @@ payload = {"room_id": 1, "played_column": 1}
 code, rjson = req.post(urlp2, payload)
 logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
 
-test_get_room = False
-if test_get_room:
-    # Player 1 just polls the board
-    urlg0 = URL_PREFIX + '/game/play/1001?room_id=1'
-    code, rjson = req.get(urlg0)
-    logger.info(f'Board polling: {type(rjson)} , {rjson} code: {code}')
-
-## The following GET failed due to "get() got an unexpected keyword argument 'params'"
-#url0 = URL_PREFIX + '/game/access/1001'
-#params = {"room_id": 1}
-#code, rjson = req.get(url0, params=params)
-#logger.info(f'Borad polling: {type(rjson)} , {rjson} code: {code}')
-
+# Player 1 just polls the board
+urlg0 = URL_PREFIX + '/game/play/1001?room_id=1'
+code, rjson = req.get(urlg0)
+logger.info(f'Board polling: {type(rjson)} , {rjson} code: {code}')
 
 # The winning move
 payload = {"room_id": 1, "played_column": 4}
@@ -147,17 +128,25 @@ logger.info(f' Dict got: {type(rdict)} , {rdict} code: {code}')
 board_dict = rdict
 my_game.print_board_matrix(board_dict["matrix"])
 
+# Player 2 just polls the board and test the winner status
+urlg0 = URL_PREFIX + '/game/play/1001?room_id=1'
+code, rjson = req.get(urlg0)
+logger.info(f'Board polling: {type(rjson)} , {rjson} code: {code}')
+polled_winner = rjson["winner"]
+assert code < 210 and polled_winner == 'A'
+
+# test room deleteion:
+url0 = URL_PREFIX + '/game/play/0?room_id=1'
+code, rjson = req.delete(url0)
+logger.info(f'room deleted: {type(rjson)} , {rjson} code: {code}')
+
+
 winner = board_dict["winner"]
 print(f'winner = {winner}')
 if winner == 'A':
     logger.info("Test passed")
 else:
     logger.info("Test failed")
-
-
-#payload = {"room_id": 1, "played_column": 1}
-#code, rjson = req.post(urlp2, payload)
-#logger.info(f' json got: {type(rjson)} , {rjson} code: {code}')
 
 
 
