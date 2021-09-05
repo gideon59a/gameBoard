@@ -66,31 +66,6 @@ class RoomRedisOps(RoomDaoBase):
                 self.del_room(room_id)
 
 
-    ## The below is currently not used
-
-    def xinsert_board(self, board: BoardG4inRow) -> None:
-        board_dict = board.__dict__
-        self.logg.debug(f'Wr board:  {board_dict["id"]}')
-        self.dbc.hset("room:" + str(board_dict["id"]), mapping=board)
-
-    def xget_board(self, room_id: int) -> dict:
-        board_got = self.get_room(room_id)["board"]
-        #print(f'Rd board:  {name}')  zzzzz
-        #return self.dbc.hgetall(name)
-        return {"a": -999}
-        
-    # XX delete the below
-    def try2(self,iroom):
-            earth_properties = {
-                "diameter_km": "12756",
-                "day_length_hrs": "24",
-                "mean_temp_c": "15",
-                "moon_count": "1"
-            }
-            # Set the fields of the hash.
-            self.dbc.hset("mytry", mapping=iroom) ##earth_properties)
-            self.logg.debug(self.dbc.hgetall("mytry"))
-
 if __name__ == '__main__':
     from logger import Alogger
     my_logger = Alogger('redisop.log')
@@ -99,11 +74,11 @@ if __name__ == '__main__':
     from gserver.db_if.db_models import Room
     from gserver.g4_in_row import game_g4inrow
     my_game = game_g4inrow.G4inRow()
-    board1 = my_game.init_new_board(id=7)
+    board1 = my_game.init_new_board()
 
 
     ###from gserver.board4inRow import *
-    ###board1 = init_new_board(id=7)
+    ###board1 = init_new_board()
     room11 = Room(
         id=11,
         game_type=G4_IN_ROW,

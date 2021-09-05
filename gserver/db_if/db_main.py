@@ -1,6 +1,9 @@
 from constants import *
 from db_if.redis_client import RedisClient
+print("aaaa")
+
 from db_if.redis_operations import RoomRedisOps
+print("aaaabbb")
 
 
 def get_db_client() -> RedisClient:
@@ -22,3 +25,5 @@ def get_db_ops(db_client: RedisClient) -> RoomRedisOps :
         exit(1)
 
 
+if __name__ == "__main__":
+    print("here db_main")

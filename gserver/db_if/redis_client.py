@@ -9,7 +9,7 @@ from redis import StrictRedis  # Use it instead of "import redis" to be able to 
 from constants import *
 
 #host = N_LENOVO_WSL2
-host = "172.17.195.125" # "192.168.77.51"
+host = "172.18.34.9"
 port = N_LAP_WSL2_PORT
 
 class RedisClient:

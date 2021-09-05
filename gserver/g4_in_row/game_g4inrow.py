@@ -105,9 +105,6 @@ class G4inRow(GameBase):
                 test3_list.append(matrix[row][col_to_right])
             col_to_right += 1
 
-        # print(f'teststr[2] upper part: {test2_list}')
-        # print(f'teststr[3] upper part: {test3_list}')
-
         # from the played location downwards
         col_to_right = played_column + 1  # for teststr[2]
         col_to_left = played_column - 1   # for teststr[3]
@@ -118,7 +115,6 @@ class G4inRow(GameBase):
             if col_to_left >= 0:
                 test3_list.insert(0, matrix[row][col_to_left])
                 col_to_left -= 1
-            #print(f'teststr[3] with lower part: {test3_list}')
         teststr[2] = "".join(test2_list)
         teststr[3] = "".join(test3_list)
 

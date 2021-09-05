@@ -17,7 +17,6 @@ class HttpRequests():
             if status_code > 210:
                 self.logger.error("request failure")
             self.logger.debug(f'Get response,json: {type(response.json())} , {response.json()}')
-            #XX self.logger.debug(f'*** http before json.load')
             rjson = json.loads(response.json().replace("\'", "\""))  # json requires " rather than '
             # tech note: An alternative to the above using json could be:
             # import ast

@@ -1,5 +1,4 @@
 import json
-import requests
 from http_requests import HttpRequests
 
 from logger import Alogger
@@ -49,6 +48,7 @@ room_got = rjson
 assert room_got["room_status"] == str(2)
 
 # Print board
+print(f'room_got["board"] {type(room_got["board"])} {room_got["board"]}')
 board_dict = json.loads(room_got["board"].replace("\'", "\""))
 from g4_in_row.game_g4inrow import G4inRow
 my_game = G4inRow()
