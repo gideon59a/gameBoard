@@ -55,30 +55,30 @@ def room(room_id):
 @app.route(BASE_URL + '/v1/game/join/<game_type>', methods=['POST'])
 def game_join(game_type):
     # Look for a room to join to
-    join_status, code = main.exe_game_join(request, game_type, dbc, logg)
+    request_dict = json.loads(request.get_data().decode("utf-8"))
+    join_status, code = main.exe_game_join(request_dict, game_type, dbc, logg)
     return jsonify(join_status), code
     #return jsonify(main.exe_game_join(request, game_type, dbc, logg))
 
 
 @app.route(BASE_URL + '/v1/game/play/<player_id>', methods=['POST', 'GET', 'DELETE'])
 def game_play(player_id):
-    board_dict, code = main.exe_game_play(request, player_id, dbc, logg)
-    return jsonify(board_dict), code
-    ### todo Should add here:
-    # GET for reading the room status
-    # DELETE for leaving the room
-
-
-@app.route(BASE_URL + '/v1/game/access/<player_id>', methods=['GET', 'DELETE'])
-def game_access(player_id):
-    logg.debug(f'**** YYY GET RESPONSE: {request}')
-    rid = request.args.get("room_id")
-    logg.debug(f'**** YYY GET ARGS: {type(rid)} {rid}')
-
-    print(f'request.json {request.json}')
-    msg = {"Status": "testing get"}
-    return jsonify(json.dumps(msg)), 200
-
+    board_dict, code = {"status": "Defauly failure type indication"}, 500
+    if request.method == 'POST':
+        request_dict = json.loads(request.get_data().decode("utf-8"))
+        board_dict, code = main.exe_game_play(request_dict, player_id, dbc, logg)
+        return jsonify(board_dict), code
+    elif request.method == 'GET':
+        room_id = request.args.get("room_id")  # Tech note: room_id is in the url args part. See api_client_test example
+        board_dict, code = main.exe_game_get(room_id, player_id, dbc, logg)
+        #XX logg.info(f'***AFTERRRR: {board_dict} {code}')
+        return jsonify(board_dict), code
+    else:  # DELETE   ### todo - Allowed to admin only
+        room_id = request.args.get("room_id")
+        db_ops = RoomRedisOps(dbc, logg)
+        logg.info(f'Deleting room {room_id}')
+        result = db_ops.del_room(room_id)
+        return jsonify(json.dumps({"result": result}))
 
 
 if __name__ == '__main__':

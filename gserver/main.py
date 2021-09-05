@@ -4,9 +4,8 @@ from game_base import get_game_instance
 from db_if.db_main import *
 
 
-def exe_game_join(request, game_type, dbc, logg):
-    logg.debug(f'request & game_type: {request.get_data()} {game_type}')
-    request_dict = json.loads(request.get_data().decode("utf-8"))
+def exe_game_join(request_dict, game_type, dbc, logg):
+
     player_id = request_dict["player_id"]
     my_game = get_game_instance(game_type)
 
@@ -31,14 +30,7 @@ def exe_game_join(request, game_type, dbc, logg):
 
     return msg, code
 
-def exe_game_play(request, player_id, dbc, logg):
-    logg.debug(f'request & palyer_id: {request.get_data()} {player_id}')
-    request_dict = json.loads(request.get_data().decode("utf-8"))
-    #pars = request.
-    if request.method == 'GET':
-        print(f'********GET******' )
-        rid = request.args.get("room_id")
-        print(f'ZZZZZ room_id = {int(rid)}')
+def exe_game_play(request_dict, player_id, dbc, logg):
 
     room_id = request_dict["room_id"]
     played_column = request_dict["played_column"]
@@ -54,17 +46,8 @@ def exe_game_play(request, player_id, dbc, logg):
         player_symbol = 'B'
     else:
         return {"status": "The player does not exist in the requested room"}, 500
+    logg.debug(f'for room_id {room_id} got_room {type(got_room)} {got_room}')
 
-    if request.method == 'GET':
-        logg.debug(f'Polling room id: {room_id}')
-        return got_room["board"], 200
-    elif request.method == 'POST':
-        logg.debug(f'Playing in room id: {room_id}')
-    else:  # request.method == 'DELETE':
-        logg.debug(f'Leaving room id: {room_id}')
-
-
-    logg.debug(f'got_room {type(got_room)} {got_room}')
     my_game = get_game_instance(got_room["game_type"].lower())
     logg.debug(f' my_game {type(my_game)} {my_game}')
 
@@ -77,19 +60,32 @@ def exe_game_play(request, player_id, dbc, logg):
     logg.debug("The board layout in text: \n")
     my_game.print_board_matrix(updated_board["matrix"])
 
-    if updated_board["winner"]:
-        # todo delete the room, and do it here if the below todo assumption is right
-        return updated_board, 201
-    else:
-        # Update DB: Update the room per the updated board
-        got_room["board"] = str(updated_board)
-        logg.debug(f'got_room: {type(got_room)} {got_room}')
-        room_ops.insert_room_dict(got_room)
-        ### todo I think the below is not needed, as it equals to the updated board
-        board_dict = json.loads(got_room["board"].replace("\'", "\""))
-        return board_dict, 201
+    # Update DB: Update the room per the updated board
+    got_room["board"] = str(updated_board)
+    logg.debug(f'got_room: {type(got_room)} {got_room}')
+    room_ops.insert_room_dict(got_room)
 
-    # old todo The best way is not to delete the room until both players left
+    # todo : delete the room provided the below
+    # when I implement the server push to both clients, the room can be deleted here
+
+    return updated_board, 201
+
+
+def exe_game_get(room_id, player_id, dbc, logg):
+
+    # Verify this player is active on this room
+    room_ops = RoomRedisOps(dbc, logg)
+    got_room = room_ops.get_room(room_id)
+
+    if got_room["player_1_id"] == str(player_id):
+        player_symbol = 'A'
+    elif got_room["player_2_id"] == str(player_id):
+        player_symbol = 'B'
+    else:
+        return {"status": "The player does not exist in the requested room"}, 500
+
+    return got_room["board"], 200
+
 
 def main():
     from logger import Alogger
