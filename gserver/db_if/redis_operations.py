@@ -23,6 +23,11 @@ class RoomRedisOps(RoomDaoBase):
         self.logg.debug(f' INSERT ROOM {type(room_dict)} {room_dict}')
         self.logg.debug(f'Set id: {room_dict["id"]}')
         self.dbc.hset("room:" + str(room_dict["id"]), mapping=room_dict)
+
+        print(f' *********** TEMP **********')
+        aa = self.get_room(room_dict["id"])
+        print(f' *********** Written: {aa} ')
+
         return 0
 
     def get_room(self, room_id: int) -> dict:
@@ -71,14 +76,14 @@ if __name__ == '__main__':
     my_logger = Alogger('redisop.log')
     logger = my_logger.get_logger()
 
-    from gserver.db_if.db_models import Room
     from gserver.g4_in_row import game_g4inrow
     my_game = game_g4inrow.G4inRow()
+    ############################
+
+
+    ############################
+    ## The below works
     board1 = my_game.init_new_board()
-
-
-    ###from gserver.board4inRow import *
-    ###board1 = init_new_board()
     room11 = Room(
         id=11,
         game_type=G4_IN_ROW,
@@ -89,6 +94,9 @@ if __name__ == '__main__':
         #board=str(board1.__dict__))
         #board=board1.__str__())
 
+    logger.debug(f' board1 {type(board1)} {board1}')
+    b_dict = str(board1.__dict__)
+    logger.debug(f' b_dict {type(b_dict)} {b_dict}')
     logger.debug(f' room11 {type(room11.__dict__)} {room11.__dict__}')
 
     from gserver.db_if.db_main import get_db_client
@@ -155,8 +163,34 @@ if __name__ == '__main__':
     #update_room = Room(got_room_dict, str(board_dict))
     #print(f'update_room {type(update_room)} {update_room}')
 
+    #TRYIMG THE INIT
+    from db_if.db_models import Room
+    # board = BoardG4inRow(last_move_row=7)
+    board = BoardG4inRow()
+    logger.debug(f' ****** board  {type(board)} {board}')
+    b_dict = str(board.__dict__)
+    logger.debug(f' ****** b_dict {type(b_dict)} {b_dict}')
+
+    new_room55 = Room(
+        id=55,
+        game_type=G4_IN_ROW,
+        room_status=1,
+        player_1_id=2001,
+        player_2_id=0,
+        # board=json.loads(json.dumps(board.__dict__)))
+        board=str(board.__dict__))
 
 
+    logger.debug(f'**** room 55 type and value {type(new_room55)} {new_room55}')
+
+    result55 = room_ops.insert_room(new_room55)  # Its id is 100
+    print(f'result55 {result55}')
+
+    #exit(55)
+    got_room_dict55 = room_ops.get_room(55)
+    board_dict55 = room_ops.get_room_board(got_room_dict55)
+    print(board_dict55["player"])
+    logger.debug(f'Matrix: {board_dict55["matrix"]}')
 
     logger.debug("exit ok")
 

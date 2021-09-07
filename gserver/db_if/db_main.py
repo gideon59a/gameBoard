@@ -1,9 +1,6 @@
 from constants import *
 from db_if.redis_client import RedisClient
-print("aaaa")
-
 from db_if.redis_operations import RoomRedisOps
-print("aaaabbb")
 
 
 def get_db_client() -> RedisClient:
@@ -15,6 +12,7 @@ def get_db_client() -> RedisClient:
         print("only redis is currently supported")
         exit(1)
 
+# todo The below is used only in tesing in start_room.py so may be deleted. Also, need to add logg to its calling
 def get_db_ops(db_client: RedisClient) -> RoomRedisOps :
     if DB_TYPE == "redis":
         # get a redis ops instance
@@ -23,7 +21,3 @@ def get_db_ops(db_client: RedisClient) -> RoomRedisOps :
     else:
         print("only redis is currently supported")
         exit(1)
-
-
-if __name__ == "__main__":
-    print("here db_main")
