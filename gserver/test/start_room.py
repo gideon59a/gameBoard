@@ -1,15 +1,24 @@
 # get the rooms list from the DB, add a new one, store and read
-from gserver.db_if.db_main import get_db_client, get_db_ops
+print("1111")
+from gserver.db_if.db_main import get_db_client
+print("1")
+
+from gserver.db_if.db_main import get_db_ops
+print("2")
+
 from constants import *
 dbc = get_db_client()
 my_room = get_db_ops(dbc)
 print(f'DB client: {dbc}')
 
 
+exit(1)
+
+
 from db_if.db_models import Room
 from g4_in_row import game_g4inrow
 my_game = game_g4inrow.G4inRow()
-board1 = my_game.init_new_board(id=7)
+board1 = my_game.init_new_board()
 
 room3 = Room(
     id=3,

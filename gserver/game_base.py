@@ -1,7 +1,7 @@
-import abc
+import abc, json
 from db_if.redis_operations import RoomRedisOps
 from constants import *
-from db_if.db_models import Room
+from db_if.db_models import Room, BoardG4inRow
 
 
 class GameBase(abc.ABC):
@@ -15,7 +15,7 @@ class GameBase(abc.ABC):
     def find_available_room(self, game_type, room_ops: RoomRedisOps, player_id):
         '''When a new player requests to join/open a game.
         When room_status = 1 the new player can be added to the room'''
-        # Start with existing rooms
+        # Start looking for already opened room to joing
         room_found = False
         room_id = 0
         room_status = 0
@@ -35,19 +35,20 @@ class GameBase(abc.ABC):
             if len(room_id_list) < MAX_ROOMS:
                 # open a new room
                 room_found = True
-                new_board = self.init_new_board()
                 for i in range(1, 6):
                     if i not in room_id_list:
                         room_id = i
                         break
-                room_status = 1
+                board = BoardG4inRow()
+                room_status = 1  # rooms opened
                 new_room = Room(
                     id=room_id,
                     game_type=game_type,
                     room_status=room_status,
                     player_1_id=player_id,
                     player_2_id=0,
-                    board=str(new_board.__dict__))
+                    #board=json.loads(json.dumps(board.__dict__)))
+                    board=str(board.__dict__))
                 room_ops.insert_room(new_room)
 
         return room_found, room_id, room_status
