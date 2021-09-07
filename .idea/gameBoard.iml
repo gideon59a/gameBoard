@@ -5,11 +5,13 @@
       <sourceFolder url="file://$MODULE_DIR$/gserver" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gserver/g4_in_row" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/py-client-temp" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.9" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Game-G4InRow" />
     <orderEntry type="module" module-name="learn2.7.14" />
     <orderEntry type="module" module-name="learn-py3" />
+    <orderEntry type="module" module-name="pythonProjects" />
   </component>
 </module>

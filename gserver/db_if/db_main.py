@@ -12,6 +12,7 @@ def get_db_client() -> RedisClient:
         print("only redis is currently supported")
         exit(1)
 
+# todo The below is used only in tesing in start_room.py so may be deleted. Also, need to add logg to its calling
 def get_db_ops(db_client: RedisClient) -> RoomRedisOps :
     if DB_TYPE == "redis":
         # get a redis ops instance
@@ -20,5 +21,3 @@ def get_db_ops(db_client: RedisClient) -> RoomRedisOps :
     else:
         print("only redis is currently supported")
         exit(1)
-
-
